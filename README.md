@@ -10,6 +10,11 @@ Map manager is a MapKit wrapper to provide route direction drawing written entir
 >  
 >  3) Get directions using Google service 
 
+Screenshot
+==========
+
+![Screenshot](http://i.imgur.com/JzoWyZ5.png)
+
 
 
 Sample code
@@ -75,7 +80,7 @@ Sample code
 Roadmap
 ---------------
 
- - Refactor code 
+ - Refactor code and use MKGeodesicPolyline
  - Add few more features
 
 ----------
