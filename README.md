@@ -18,25 +18,25 @@ Sample code
 **Directions using Apple service**
 
     var latOrigin = 37.331789
-        var lngOrigin = -122.029620
-        var coordinateOrigin = CLLocationCoordinate2D(latitude: latOrigin, longitude: lngOrigin)
-        var latDestination = 37.231789
-        var lngDestination = -122.029620
-        var coordinateDestination = CLLocationCoordinate2D(latitude: latDestination, longitude: lngDestination)
+    var lngOrigin = -122.029620
+    var coordinateOrigin = CLLocationCoordinate2D(latitude: latOrigin, longitude: lngOrigin)
+    var latDestination = 37.231789
+    var lngDestination = -122.029620
+    var coordinateDestination = CLLocationCoordinate2D(latitude: latDestination, longitude: lngDestination)
         
-        mapManager.directionsFor(origin: coordinateOrigin, destination: coordinateDestination) { (route, boundingRegion, error) -> () in
+    mapManager.directionsFor(origin: coordinateOrigin, destination: coordinateDestination) { (route, boundingRegion, error) -> () in
             
-            if (error? != nil) {
+        if (error? != nil) {
                 
-                println(error!)
-            }else{
+            println(error!)
+        }else{
                 
-                if let web = self.mapView?{
+            if let web = self.mapView?{
                     
-                    dispatch_async(dispatch_get_main_queue()) {
+                dispatch_async(dispatch_get_main_queue()) {
                         
-                        web.addOverlay(route!)
-                        web.setVisibleMapRect(boundingRegion!, animated: true)
+                    web.addOverlay(route!)
+                    web.setVisibleMapRect(boundingRegion!, animated: true)
                         
                     }
                     
@@ -49,26 +49,26 @@ Sample code
 **Directions using Google service**
 
     var origin = "Toronto"
-        var destination =  "Montreal"
+    var destination =  "Montreal"
         
-        mapManager.directionsUsingGoogleFor(origin: origin, destination: destination) { (route, boundingRegion, error) -> () in
+    mapManager.directionsUsingGoogleFor(origin: origin, destination: destination) { (route, boundingRegion, error) -> () in
             
-            if(error != nil){
+        if(error != nil){
                 
-                println(error)
-            }else{
+            println(error!)
+        }else{
                 
-                if let web = self.mapView?{
+            if let web = self.mapView?{
                     
-                    dispatch_async(dispatch_get_main_queue()) {
-                        web.addOverlay(route!)
-                        web.setVisibleMapRect(boundingRegion!, animated: true)
-                    }
+                dispatch_async(dispatch_get_main_queue()) {
+                    web.addOverlay(route!)
+                    web.setVisibleMapRect(boundingRegion!, animated: true)
+                	}
                     
-                }
+            	}
                 
-            }
-        }
+        	}
+    	}
 
 ----------
 
