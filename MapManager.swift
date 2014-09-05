@@ -33,6 +33,7 @@ class MapManager: NSObject{
     
     
     private var directionsCompletionHandler:DirectionsCompletionHandler
+    private let errorNoRoutesAvailable = "No routes available"// add more error handling
     
     override init(){
         
@@ -40,6 +41,43 @@ class MapManager: NSObject{
         
     }
     
+    func directionsFromCurrentLocationTo(#destination:NSString,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        self.directionsCompletionHandler = directionCompletionHandler
+        
+        var geoCoder = CLGeocoder()
+        geoCoder.geocodeAddressString(destination, completionHandler: { (placemarksObject, error) -> Void in
+            
+            if(error != nil){
+            
+                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: error.localizedDescription)
+                
+            }else{
+            
+                var placemarks = placemarksObject as NSArray
+                var placemark = placemarks.lastObject as CLPlacemark
+                
+                
+                var source = MKMapItem.mapItemForCurrentLocation()
+                var placemarkDestination = MKPlacemark(placemark: placemark)
+                var destination = MKMapItem(placemark: placemarkDestination)
+                
+                self.directionsFor(source: source, destination: destination, directionCompletionHandler: self.directionsCompletionHandler)
+                
+                
+            }
+        })
+        
+    }
+    
+    func directionsFromCurrentLocationTo(#destination:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        var source = MKMapItem.mapItemForCurrentLocation()
+        var placemarkDestination = MKPlacemark(coordinate: destination, addressDictionary: nil)
+        var destination = MKMapItem(placemark: placemarkDestination)
+        
+        directionsFor(source: source, destination: destination, directionCompletionHandler: directionsCompletionHandler)
+    }
     
     func directionsFor(#origin:CLLocationCoordinate2D, destination:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
         
@@ -47,13 +85,22 @@ class MapManager: NSObject{
         
         var directionRequest = MKDirectionsRequest()
         var placemarkSource = MKPlacemark(coordinate: origin, addressDictionary: nil)
-        var source = MKMapItem(placemark: placemarkSource)//MKMapItem.mapItemForCurrentLocation()
+        var source = MKMapItem(placemark: placemarkSource)
         var placemarkDestination = MKPlacemark(coordinate: destination, addressDictionary: nil)
         
-        var dest = MKMapItem(placemark: placemarkDestination)
+        var destination = MKMapItem(placemark: placemarkDestination)
         
+        directionsFor(source: source, destination: destination, directionCompletionHandler: directionsCompletionHandler)
+        
+    }
+    
+    private func directionsFor(#source:MKMapItem, destination:MKMapItem,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        self.directionsCompletionHandler = directionCompletionHandler
+        
+        var directionRequest = MKDirectionsRequest()
         directionRequest.setSource(source)
-        directionRequest.setDestination(dest)
+        directionRequest.setDestination(destination)
         directionRequest.transportType = MKDirectionsTransportType.Any
         directionRequest.requestsAlternateRoutes = true
         
@@ -67,7 +114,7 @@ class MapManager: NSObject{
                 self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: error.localizedDescription)
             }else if(response.routes.isEmpty){
                 
-                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: "no route available")
+                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: self.errorNoRoutesAvailable)
             }else{
                 
                 let route: MKRoute = response.routes[0] as MKRoute
@@ -140,7 +187,7 @@ class MapManager: NSObject{
     }
     
     
-    func decodePolyLine(encodedStr:NSString)->Array<CLLocation>{
+    private func decodePolyLine(encodedStr:NSString)->Array<CLLocation>{
         
         var array = Array<CLLocation>()
         let len = encodedStr.length
