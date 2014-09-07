@@ -12,6 +12,9 @@ Map manager is a MapKit wrapper to provide route direction drawing written entir
 
 Screenshot
 ==========
+**Currently these methods are available**
+![Screenshot](http://imgur.com/qhytrPs.png)
+
 
 ![Screenshot](http://imgur.com/BpZ8XPx.png)
 

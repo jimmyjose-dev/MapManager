@@ -29,7 +29,7 @@ import MapKit
 
 typealias DirectionsCompletionHandler = ((route:MKPolyline?, directionInformation:NSDictionary?, boundingRegion:MKMapRect?, error:String?)->())?
 
-
+// TODO: Documentation
 
 class MapManager: NSObject{
     
@@ -213,6 +213,14 @@ class MapManager: NSObject{
         })
     }
     
+    /**
+    Get directions using Google API by passing source and destination as string.
+    
+    :param: from Starting point of journey
+    :param: to Ending point of journey
+    :returns: directionCompletionHandler: Completion handler contains polyline,dictionary,maprect and error
+    
+    */
     
     func directionsUsingGoogle(#from:NSString, to:NSString,directionCompletionHandler:DirectionsCompletionHandler){
         
