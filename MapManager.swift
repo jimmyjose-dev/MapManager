@@ -27,7 +27,9 @@ import CoreLocation
 import MapKit
 
 
-typealias DirectionsCompletionHandler = ((route:MKPolyline?, boundingRegion:MKMapRect?, error:String?)->())?
+typealias DirectionsCompletionHandler = ((route:MKPolyline?, directionInformation:NSDictionary?, boundingRegion:MKMapRect?, error:String?)->())?
+
+
 
 class MapManager: NSObject{
     
@@ -35,34 +37,46 @@ class MapManager: NSObject{
     private var directionsCompletionHandler:DirectionsCompletionHandler
     private let errorNoRoutesAvailable = "No routes available"// add more error handling
     
+    private let errorDictionary = ["NOT_FOUND" : "At least one of the locations specified in the request's origin, destination, or waypoints could not be geocoded",
+        "ZERO_RESULTS":"No route could be found between the origin and destination",
+        "MAX_WAYPOINTS_EXCEEDED":"Too many waypointss were provided in the request The maximum allowed waypoints is 8, plus the origin, and destination",
+        "INVALID_REQUEST":"The provided request was invalid. Common causes of this status include an invalid parameter or parameter value",
+        "OVER_QUERY_LIMIT":"Service has received too many requests from your application within the allowed time period",
+        "REQUEST_DENIED":"Service denied use of the directions service by your application",
+        "UNKNOWN_ERROR":"Directions request could not be processed due to a server error. Please try again"]
+    
+    
     override init(){
         
         super.init()
         
     }
     
-    func directionsFromCurrentLocationTo(#destination:NSString,directionCompletionHandler:DirectionsCompletionHandler){
+    func directions(#from:CLLocationCoordinate2D,to:NSString,directionCompletionHandler:DirectionsCompletionHandler){
         
         self.directionsCompletionHandler = directionCompletionHandler
         
         var geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(destination, completionHandler: { (placemarksObject, error) -> Void in
+        geoCoder.geocodeAddressString(to, completionHandler: { (placemarksObject, error) -> Void in
             
             if(error != nil){
-            
-                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: error.localizedDescription)
+                
+                self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: error.localizedDescription)
                 
             }else{
-            
+                
+                
                 var placemarks = placemarksObject as NSArray
                 var placemark = placemarks.lastObject as CLPlacemark
                 
                 
-                var source = MKMapItem.mapItemForCurrentLocation()
+                var placemarkSource = MKPlacemark(coordinate: from, addressDictionary: nil)
+                
+                var source = MKMapItem(placemark: placemarkSource)
                 var placemarkDestination = MKPlacemark(placemark: placemark)
                 var destination = MKMapItem(placemark: placemarkDestination)
                 
-                self.directionsFor(source: source, destination: destination, directionCompletionHandler: self.directionsCompletionHandler)
+                self.directionsFor(source: source, destination: destination, directionCompletionHandler: directionCompletionHandler)
                 
                 
             }
@@ -70,23 +84,56 @@ class MapManager: NSObject{
         
     }
     
-    func directionsFromCurrentLocationTo(#destination:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
-        
-        var source = MKMapItem.mapItemForCurrentLocation()
-        var placemarkDestination = MKPlacemark(coordinate: destination, addressDictionary: nil)
-        var destination = MKMapItem(placemark: placemarkDestination)
-        
-        directionsFor(source: source, destination: destination, directionCompletionHandler: directionsCompletionHandler)
-    }
     
-    func directionsFor(#origin:CLLocationCoordinate2D, destination:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
+    func directionsFromCurrentLocation(#to:NSString,directionCompletionHandler:DirectionsCompletionHandler){
         
         self.directionsCompletionHandler = directionCompletionHandler
         
+        var geoCoder = CLGeocoder()
+        geoCoder.geocodeAddressString(to, completionHandler: { (placemarksObject, error) -> Void in
+            
+            if(error != nil){
+                
+                self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: error.localizedDescription)
+                
+            }else{
+                
+                var placemarks = placemarksObject as NSArray
+                var placemark = placemarks.lastObject as CLPlacemark
+                
+                var source = MKMapItem.mapItemForCurrentLocation()
+                
+                var placemarkDestination = MKPlacemark(placemark: placemark)
+                var destination = MKMapItem(placemark: placemarkDestination)
+                
+                self.directionsFor(source: source, destination: destination, directionCompletionHandler: directionCompletionHandler)
+                
+                
+            }
+        })
+        
+    }
+    
+    
+    func directionsFromCurrentLocation(#to:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
+        
         var directionRequest = MKDirectionsRequest()
-        var placemarkSource = MKPlacemark(coordinate: origin, addressDictionary: nil)
+        
+        var source = MKMapItem.mapItemForCurrentLocation()
+        var placemarkDestination = MKPlacemark(coordinate: to, addressDictionary: nil)
+        
+        var destination = MKMapItem(placemark: placemarkDestination)
+        
+        directionsFor(source: source, destination: destination, directionCompletionHandler: directionsCompletionHandler)
+        
+    }
+    
+    func directions(#from:CLLocationCoordinate2D, to:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        var directionRequest = MKDirectionsRequest()
+        var placemarkSource = MKPlacemark(coordinate: from, addressDictionary: nil)
         var source = MKMapItem(placemark: placemarkSource)
-        var placemarkDestination = MKPlacemark(coordinate: destination, addressDictionary: nil)
+        var placemarkDestination = MKPlacemark(coordinate: to, addressDictionary: nil)
         
         var destination = MKMapItem(placemark: placemarkDestination)
         
@@ -110,23 +157,87 @@ class MapManager: NSObject{
             (response:MKDirectionsResponse!, error:NSError!) -> Void in
             
             if (error? != nil) {
-                
-                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: error.localizedDescription)
+                self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: error.localizedDescription)
             }else if(response.routes.isEmpty){
                 
-                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: self.errorNoRoutesAvailable)
+                self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: self.errorNoRoutesAvailable)
             }else{
                 
                 let route: MKRoute = response.routes[0] as MKRoute
+                let steps = route.steps as NSArray
+                var stop = false
+                var end_address = route.name
+                var distance = route.distance.description
+                var duration = route.expectedTravelTime.description
                 
-                self.directionsCompletionHandler!(route: route.polyline, boundingRegion: route.polyline.boundingMapRect, error: nil)
+                var source = response.source.placemark.coordinate
+                var destination = response.destination.placemark.coordinate
+                
+                var start_location = ["lat":source.latitude,"lng":source.longitude]
+                var end_location = ["lat":destination.latitude,"lng":destination.longitude]
+                
+                var stepsFinalArray = NSMutableArray()
+                
+                steps.enumerateObjectsUsingBlock({ (obj, idx, stop) -> Void in
+                    
+                    var step:MKRouteStep = obj as MKRouteStep
+                    
+                    var distance = step.distance.description
+                    
+                    var instructions = step.instructions
+                    
+                    var stepsDictionary = NSMutableDictionary()
+                    
+                    stepsDictionary.setObject(distance, forKey: "distance")
+                    stepsDictionary.setObject("", forKey: "duration")
+                    stepsDictionary.setObject(instructions, forKey: "instructions")
+                    
+                    
+                    stepsFinalArray.addObject(stepsDictionary)
+                    
+                })
+                
+                var stepsDict = NSMutableDictionary()
+                stepsDict.setObject(distance, forKey: "distance")
+                stepsDict.setObject(duration, forKey: "duration")
+                stepsDict.setObject(end_address, forKey: "end_address")
+                stepsDict.setObject(end_location, forKey: "end_location")
+                stepsDict.setObject("", forKey: "start_address")
+                stepsDict.setObject(start_location, forKey: "start_location")
+                stepsDict.setObject(stepsFinalArray, forKey: "steps")
+                
+                
+                self.directionsCompletionHandler!(route: route.polyline,directionInformation: stepsDict, boundingRegion: route.polyline.boundingMapRect, error: nil)
             }
             
         })
     }
     
     
-    func directionsUsingGoogleFor(#origin:NSString, destination:NSString,directionCompletionHandler:DirectionsCompletionHandler){
+    func directionsUsingGoogle(#from:NSString, to:NSString,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        getDirectionsUsingGoogle(origin: from, destination: to, directionCompletionHandler: directionCompletionHandler)
+        
+    }
+    
+    func directionsUsingGoogle(#from:CLLocationCoordinate2D, to:CLLocationCoordinate2D,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        var originLatLng = "\(from.latitude),\(from.longitude)"
+        var destinationLatLng = "\(to.latitude),\(to.longitude)"
+        
+        getDirectionsUsingGoogle(origin: originLatLng, destination: destinationLatLng, directionCompletionHandler: directionCompletionHandler)
+        
+    }
+    
+    func directionsUsingGoogle(#from:CLLocationCoordinate2D, to:NSString,directionCompletionHandler:DirectionsCompletionHandler){
+        
+        var originLatLng = "\(from.latitude),\(from.longitude)"
+        
+        getDirectionsUsingGoogle(origin: originLatLng, destination: to, directionCompletionHandler: directionCompletionHandler)
+        
+    }
+    
+    private func getDirectionsUsingGoogle(#origin:NSString, destination:NSString,directionCompletionHandler:DirectionsCompletionHandler){
         
         self.directionsCompletionHandler = directionCompletionHandler
         
@@ -150,7 +261,7 @@ class MapManager: NSObject{
                 
                 println(error.localizedDescription)
                 
-                self.directionsCompletionHandler!(route: nil, boundingRegion: nil, error: error.localizedDescription)
+                self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: error.localizedDescription)
                 
                 
             }else{
@@ -161,10 +272,14 @@ class MapManager: NSObject{
                 let jsonResult: NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
                 
                 let routes = jsonResult.objectForKey("routes") as NSArray
+                let status = jsonResult.objectForKey("status") as NSString
                 let route = routes.lastObject as NSDictionary //first object?
                 
-                if(route.allKeys.count>0){
+                if(status.isEqualToString("OK") && route.allKeys.count>0){
                     
+                    let legs = route.objectForKey("legs") as NSArray
+                    let steps = legs.firstObject as NSDictionary
+                    let directionInformation = self.parser(steps) as NSDictionary
                     let overviewPolyline = route.objectForKey("overview_polyline") as NSDictionary
                     let points = overviewPolyline.objectForKey("points") as NSString
                     
@@ -177,7 +292,18 @@ class MapManager: NSObject{
                     var polyline = MKPolyline(coordinates: &coordinates,
                         count: locations.count)
                     
-                    self.directionsCompletionHandler!(route: polyline, boundingRegion: polyline.boundingMapRect, error: nil)
+                    self.directionsCompletionHandler!(route: polyline,directionInformation:directionInformation, boundingRegion: polyline.boundingMapRect, error: nil)
+                    
+                }else{
+                    
+                    var errorMsg = self.errorDictionary[status]
+                    
+                    if(errorMsg == nil){
+                        
+                        errorMsg = self.errorNoRoutesAvailable
+                    }
+                    
+                    self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: errorMsg)
                     
                 }
             }
@@ -257,6 +383,80 @@ class MapManager: NSObject{
         }
         
         return array
+        
+    }
+    
+    private func parser(data:NSDictionary)->NSDictionary{
+        
+        var dict = NSMutableDictionary()
+        var distance = (data.objectForKey("distance") as NSDictionary).objectForKey("text") as NSString
+        
+        var duration = (data.objectForKey("duration") as NSDictionary).objectForKey("text") as NSString
+        
+        var end_address = data.objectForKey("end_address") as NSString
+        var end_location = data.objectForKey("end_location") as NSDictionary
+        var start_address = data.objectForKey("start_address") as NSString
+        var start_location = data.objectForKey("start_location") as NSDictionary
+        var stepsArray = data.objectForKey("steps") as NSArray
+        
+        var stepsDict = NSMutableDictionary()
+        var stop = false
+        
+        var stepsFinalArray = NSMutableArray()
+        
+        stepsArray.enumerateObjectsUsingBlock { (obj, idx, stop) -> Void in
+            
+            var stepDict = obj as NSDictionary
+            
+            var distance = (stepDict.objectForKey("distance") as NSDictionary).objectForKey("text") as NSString
+            
+            var duration = (stepDict.objectForKey("duration") as NSDictionary).objectForKey("text") as NSString
+            var html_instructions = stepDict.objectForKey("html_instructions") as NSString
+            var end_location = stepDict.objectForKey("end_location") as NSDictionary
+            var instructions = self.removeHTMLTags((stepDict.objectForKey("html_instructions") as NSString))
+            var start_location = stepDict.objectForKey("start_location") as NSDictionary
+            
+            var stepsDictionary = NSMutableDictionary()
+            
+            stepsDictionary.setObject(distance, forKey: "distance")
+            stepsDictionary.setObject(duration, forKey: "duration")
+            stepsDictionary.setObject(html_instructions, forKey: "html_instructions")
+            stepsDictionary.setObject(end_location, forKey: "end_location")
+            stepsDictionary.setObject(instructions, forKey: "instructions")
+            stepsDictionary.setObject(start_location, forKey: "start_location")
+            
+            stepsFinalArray.addObject(stepsDictionary)
+            
+            
+        }
+        
+        stepsDict.setObject(distance, forKey: "distance")
+        stepsDict.setObject(duration, forKey: "duration")
+        stepsDict.setObject(end_address, forKey: "end_address")
+        stepsDict.setObject(end_location, forKey: "end_location")
+        stepsDict.setObject(start_address, forKey: "start_address")
+        stepsDict.setObject(start_location, forKey: "start_location")
+        stepsDict.setObject(stepsFinalArray, forKey: "steps")
+        
+        
+        return stepsDict
+        
+    }
+    
+    private func removeHTMLTags(source:NSString)->NSString{
+        
+        var range = NSMakeRange(0, 0)
+        let HTMLTags = "<[^>]*>"
+        
+        var sourceString = source
+        while( sourceString.rangeOfString(HTMLTags, options: NSStringCompareOptions.RegularExpressionSearch).location != NSNotFound){
+            
+            range = sourceString.rangeOfString(HTMLTags, options: NSStringCompareOptions.RegularExpressionSearch)
+            
+            sourceString = sourceString.stringByReplacingCharactersInRange(range, withString: "")
+        }
+        
+        return sourceString;
         
     }
     

@@ -13,7 +13,7 @@ Map manager is a MapKit wrapper to provide route direction drawing written entir
 Screenshot
 ==========
 
-![Screenshot](http://imgur.com/SlRsKUZ.png)
+![Screenshot](http://imgur.com/BpZ8XPx.png)
 
 
 
@@ -29,7 +29,7 @@ Sample code
     var lngDestination = -122.029620
     var coordinateDestination = CLLocationCoordinate2D(latitude: latDestination, longitude: lngDestination)
         
-    mapManager.directionsFor(origin: coordinateOrigin, destination: coordinateDestination) { (route, boundingRegion, error) -> () in
+    mapManager.directions(from: coordinateOrigin, to: coordinateDestination) { (route, directionInformation, boundingRegion, error) -> () in
             
         if (error? != nil) {
                 
@@ -56,7 +56,7 @@ Sample code
     var origin = "Toronto"
     var destination =  "Montreal"
         
-    mapManager.directionsUsingGoogleFor(origin: origin, destination: destination) { (route, boundingRegion, error) -> () in
+    mapManager.directionsUsingGoogle(from: origin, to: destination) { (route, directionInformation, boundingRegion, error) -> () in
             
         if(error != nil){
                 
