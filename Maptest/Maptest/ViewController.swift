@@ -28,7 +28,7 @@ import UIKit
 import MapKit
 
 
-class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UITableViewDataSource,UITableViewDelegate{
+class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UITableViewDataSource,UITableViewDelegate,CLLocationManagerDelegate{
     
     @IBOutlet var mapView:MKMapView? = MKMapView()
     @IBOutlet var textfieldTo:UITextField? = UITextField()
@@ -36,9 +36,13 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
     @IBOutlet var textfieldToCurrentLocation:UITextField? = UITextField()
     @IBOutlet var textView:UITextView? = UITextView()
     @IBOutlet var tableView:UITableView? = UITableView()
+    
+    
     var tableData = NSArray()
     
     var mapManager = MapManager()
+    
+    var locationManager: CLLocationManager!
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -49,12 +53,22 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
         
         super.viewDidLoad()
         
+        
+        
+        
+        //[CLLocationManager requestWhenInUseAuthorization];
+        //[CLLocationManager requestAlwaysAuthorization]
+        
         let address = "1 Infinite Loop, CA, USA"
         
         textfieldTo?.delegate = self
         textfieldFrom?.delegate = self
         
         self.mapView?.delegate = self
+        
+    }
+    
+    func mapViewWillStartLocatingUser(mapView: MKMapView!) {
         
     }
     
@@ -72,23 +86,21 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
     }
     
     
-    func numberOfSectionsInTableView(tableView: UITableView!) -> Int{
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int{
         
         return 1
     }
     
     
     
-    
-    
-    func tableView(tableView: UITableView!, numberOfRowsInSection section:    Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         
         
         return tableData.count
     }
     
     
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         
         let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "direction")
         
@@ -108,7 +120,7 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
         cell.selectionStyle = UITableViewCellSelectionStyle.None
         
         //cell.textLabel.font=  [UIFont fontWithName:"Helvetica Neue-Light" size:15];
-        cell.detailTextLabel.text = detail
+        cell.detailTextLabel!.text = detail
         
         
         return cell
@@ -118,6 +130,8 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
         
         var origin = textfieldFrom?.text
         var destination =  textfieldTo?.text
+        origin = origin?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+        destination = destination?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
         
         if(origin == nil || (countElements(origin!) == 0) || destination == nil || countElements(destination!) == 0)
         {
@@ -125,6 +139,7 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
             println("enter to and from")
             return
         }
+        self.view.endEditing(true)
         
         mapManager.directionsUsingGoogle(from: origin!, to: destination!) { (route,directionInformation, boundingRegion, error) -> () in
             
@@ -190,10 +205,34 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
             return
         }
         
-        var location = self.mapView?.userLocation
+        self.view.endEditing(true)
         
-        var from = location?.coordinate
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        // locationManager.locationServicesEnabled
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
+        
+        if (locationManager.respondsToSelector(Selector("requestWhenInUseAuthorization"))) {
+            
+            //locationManager.requestAlwaysAuthorization() // add in plist NSLocationAlwaysUsageDescription
+            locationManager.requestWhenInUseAuthorization() // add in plist NSLocationWhenInUseUsageDescription
+            
+        }
+        
+        //var location = self.mapView?.userLocation
+        
+        //var from = location?.coordinate
+        
+        
+        
+        
+        
+    }
+    
+    func getDirectionsUsingApple() {
+        
+        var destination =  textfieldToCurrentLocation?.text
         mapManager.directionsFromCurrentLocation(to: destination!) { (route, directionInformation, boundingRegion, error) -> () in
             
             if (error? != nil) {
@@ -220,8 +259,40 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
             
         }
         
+        
     }
     
+    
+    func locationManager(manager: CLLocationManager!,
+        didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+            var hasAuthorised = false
+            var locationStatus:NSString = ""
+            var verboseKey = status
+            switch status {
+            case CLAuthorizationStatus.Restricted:
+                locationStatus = "Restricted Access"
+            case CLAuthorizationStatus.Denied:
+                locationStatus = "Denied access"
+            case CLAuthorizationStatus.NotDetermined:
+                locationStatus = "Not determined"
+            default:
+                locationStatus = "Allowed access"
+                hasAuthorised = true
+            }
+            
+            
+            
+            if(hasAuthorised == true){
+                
+                getDirectionsUsingApple()
+                
+            }else {
+                
+                println("locationStatus \(locationStatus)")
+                
+            }
+            
+    }
     
 }
 

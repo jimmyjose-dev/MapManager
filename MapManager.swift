@@ -257,9 +257,11 @@ class MapManager: NSObject{
     
     private func performOperationForURL(urlString:NSString){
         
-        let url:NSURL = NSURL(string:urlString)
+        let urlEncoded = urlString.stringByReplacingOccurrencesOfString(" ", withString: "%20")
         
-        let request:NSURLRequest = NSURLRequest(URL:url)
+        let url:NSURL? = NSURL(string:urlEncoded)
+        let request:NSURLRequest = NSURLRequest(URL:url!)
+        
         
         let queue:NSOperationQueue = NSOperationQueue()
         
@@ -274,7 +276,7 @@ class MapManager: NSObject{
                 
             }else{
                 
-                let dataAsString: NSString = NSString(data: data, encoding: NSUTF8StringEncoding)
+                let dataAsString: NSString = NSString(data: data, encoding: NSUTF8StringEncoding)!
                 
                 var err: NSError
                 let jsonResult: NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
@@ -321,6 +323,7 @@ class MapManager: NSObject{
     }
     
     
+    
     private func decodePolyLine(encodedStr:NSString)->Array<CLLocation>{
         
         var array = Array<CLLocation>()
@@ -348,7 +351,7 @@ class MapManager: NSObject{
             
             var dlat = 0
             
-            if((result & 1) == true){
+            if((result & 1) == 1){
                 
                 dlat = ~(result >> 1)
             }else{
@@ -370,7 +373,7 @@ class MapManager: NSObject{
             
             var dlng = 0
             
-            if((result & 1) == true){
+            if((result & 1) == 1){
                 
                 dlng = ~(result >> 1)
             }else{
@@ -381,8 +384,8 @@ class MapManager: NSObject{
             lng += dlng
             
             
-            var latitude = NSNumber.numberWithInt(lat).doubleValue * 1e-5
-            var longitude = NSNumber.numberWithInt(lng).doubleValue * 1e-5
+            var latitude = NSNumber(int:lat).doubleValue * 1e-5
+            var longitude = NSNumber(int:lng).doubleValue * 1e-5
             
             var location = CLLocation(latitude: latitude, longitude: longitude)
             

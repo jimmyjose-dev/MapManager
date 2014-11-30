@@ -24,6 +24,8 @@
 	<true/>
 	<key>NSLocationUsageDescription</key>
 	<string>Just press OK or rot in hell</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Just press OK or rot in hell</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
