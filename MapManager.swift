@@ -124,7 +124,7 @@ class MapManager: NSObject{
         
         var destination = MKMapItem(placemark: placemarkDestination)
         
-        directionsFor(source: source, destination: destination, directionCompletionHandler: directionsCompletionHandler)
+        directionsFor(source: source, destination: destination, directionCompletionHandler: directionCompletionHandler)
         
     }
     
@@ -137,7 +137,7 @@ class MapManager: NSObject{
         
         var destination = MKMapItem(placemark: placemarkDestination)
         
-        directionsFor(source: source, destination: destination, directionCompletionHandler: directionsCompletionHandler)
+        directionsFor(source: source, destination: destination, directionCompletionHandler: directionCompletionHandler)
         
     }
     
