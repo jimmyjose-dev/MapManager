@@ -4,7 +4,7 @@ MapManager
 Map manager is a MapKit wrapper to provide route direction drawing written entirely in Swift
 ----------------------------------
 
-**Updated for XCode 6.2 beta 3 and iOS 8.2 beta**
+**Updated for XCode 6.4 beta and iOS 8.4 beta**
 
 **Features:**
 >  1) Closure support 

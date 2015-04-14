@@ -57,7 +57,7 @@ class MapManager: NSObject{
         self.directionsCompletionHandler = directionCompletionHandler
         
         var geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(to, completionHandler: { (placemarksObject, error) -> Void in
+        geoCoder.geocodeAddressString(to as String, completionHandler: { (placemarksObject, error) -> Void in
             
             if(error != nil){
                 
@@ -67,7 +67,7 @@ class MapManager: NSObject{
                 
                 
                 var placemarks = placemarksObject as NSArray
-                var placemark = placemarks.lastObject as CLPlacemark
+                var placemark = placemarks.lastObject as! CLPlacemark
                 
                 
                 var placemarkSource = MKPlacemark(coordinate: from, addressDictionary: nil)
@@ -90,7 +90,7 @@ class MapManager: NSObject{
         self.directionsCompletionHandler = directionCompletionHandler
         
         var geoCoder = CLGeocoder()
-        geoCoder.geocodeAddressString(to, completionHandler: { (placemarksObject, error) -> Void in
+        geoCoder.geocodeAddressString(to as String, completionHandler: { (placemarksObject, error) -> Void in
             
             if(error != nil){
                 
@@ -99,7 +99,7 @@ class MapManager: NSObject{
             }else{
                 
                 var placemarks = placemarksObject as NSArray
-                var placemark = placemarks.lastObject as CLPlacemark
+                var placemark = placemarks.lastObject as! CLPlacemark
                 
                 var source = MKMapItem.mapItemForCurrentLocation()
                 
@@ -156,14 +156,14 @@ class MapManager: NSObject{
         directions.calculateDirectionsWithCompletionHandler({
             (response:MKDirectionsResponse!, error:NSError!) -> Void in
             
-            if (error? != nil) {
+            if (error != nil) {
                 self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: error.localizedDescription)
             }else if(response.routes.isEmpty){
                 
                 self.directionsCompletionHandler!(route: nil,directionInformation:nil, boundingRegion: nil, error: self.errorNoRoutesAvailable)
             }else{
                 
-                let route: MKRoute = response.routes[0] as MKRoute
+                let route: MKRoute = response.routes[0] as! MKRoute
                 let steps = route.steps as NSArray
                 var stop = false
                 var end_address = route.name
@@ -180,7 +180,7 @@ class MapManager: NSObject{
                 
                 steps.enumerateObjectsUsingBlock({ (obj, idx, stop) -> Void in
                     
-                    var step:MKRouteStep = obj as MKRouteStep
+                    var step:MKRouteStep = obj as! MKRouteStep
                     
                     var distance = step.distance.description
                     
@@ -279,19 +279,19 @@ class MapManager: NSObject{
                 let dataAsString: NSString = NSString(data: data, encoding: NSUTF8StringEncoding)!
                 
                 var err: NSError
-                let jsonResult: NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
+                let jsonResult: NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: nil) as! NSDictionary
                 
-                let routes = jsonResult.objectForKey("routes") as NSArray
-                let status = jsonResult.objectForKey("status") as NSString
-                let route = routes.lastObject as NSDictionary //first object?
+                let routes = jsonResult.objectForKey("routes") as! NSArray
+                let status = jsonResult.objectForKey("status") as! NSString
+                let route = routes.lastObject as! NSDictionary //first object?
                 
                 if(status.isEqualToString("OK") && route.allKeys.count>0){
                     
-                    let legs = route.objectForKey("legs") as NSArray
-                    let steps = legs.firstObject as NSDictionary
+                    let legs = route.objectForKey("legs") as! NSArray
+                    let steps = legs.firstObject as! NSDictionary
                     let directionInformation = self.parser(steps) as NSDictionary
-                    let overviewPolyline = route.objectForKey("overview_polyline") as NSDictionary
-                    let points = overviewPolyline.objectForKey("points") as NSString
+                    let overviewPolyline = route.objectForKey("overview_polyline") as! NSDictionary
+                    let points = overviewPolyline.objectForKey("points") as! NSString
                     
                     var locations = self.decodePolyLine(points) as Array
                     
@@ -306,7 +306,7 @@ class MapManager: NSObject{
                     
                 }else{
                     
-                    var errorMsg = self.errorDictionary[status]
+                    var errorMsg = self.errorDictionary[status as String]
                     
                     if(errorMsg == nil){
                         
@@ -344,7 +344,11 @@ class MapManager: NSObject{
             var result = 0
             
             do{
-                b = strpolyline.characterAtIndex(index++)  - 63
+                var numUnichar = strpolyline.characterAtIndex(index++)
+                var num =  NSNumber(unsignedShort: numUnichar)
+                var numInt = num.integerValue
+                b = numInt - 63
+                
                 result |= (b & 0x1f) << shift
                 shift += 5
             }while(b >= 0x20)
@@ -365,7 +369,11 @@ class MapManager: NSObject{
             result = 0
             
             do{
-                b = strpolyline.characterAtIndex(index++)  - 63
+                var numUnichar = strpolyline.characterAtIndex(index++)
+                var num =  NSNumber(unsignedShort: numUnichar)
+                var numInt = num.integerValue
+                b = numInt - 63
+                
                 result |= (b & 0x1f) << shift
                 shift += 5
                 
@@ -400,15 +408,15 @@ class MapManager: NSObject{
     private func parser(data:NSDictionary)->NSDictionary{
         
         var dict = NSMutableDictionary()
-        var distance = (data.objectForKey("distance") as NSDictionary).objectForKey("text") as NSString
+        var distance = (data.objectForKey("distance") as! NSDictionary).objectForKey("text") as! NSString
         
-        var duration = (data.objectForKey("duration") as NSDictionary).objectForKey("text") as NSString
+        var duration = (data.objectForKey("duration") as! NSDictionary).objectForKey("text") as! NSString
         
-        var end_address = data.objectForKey("end_address") as NSString
-        var end_location = data.objectForKey("end_location") as NSDictionary
-        var start_address = data.objectForKey("start_address") as NSString
-        var start_location = data.objectForKey("start_location") as NSDictionary
-        var stepsArray = data.objectForKey("steps") as NSArray
+        var end_address = data.objectForKey("end_address") as! NSString
+        var end_location = data.objectForKey("end_location") as! NSDictionary
+        var start_address = data.objectForKey("start_address") as! NSString
+        var start_location = data.objectForKey("start_location") as! NSDictionary
+        var stepsArray = data.objectForKey("steps") as! NSArray
         
         var stepsDict = NSMutableDictionary()
         var stop = false
@@ -417,15 +425,15 @@ class MapManager: NSObject{
         
         stepsArray.enumerateObjectsUsingBlock { (obj, idx, stop) -> Void in
             
-            var stepDict = obj as NSDictionary
+            var stepDict = obj as! NSDictionary
             
-            var distance = (stepDict.objectForKey("distance") as NSDictionary).objectForKey("text") as NSString
+            var distance = (stepDict.objectForKey("distance") as! NSDictionary).objectForKey("text") as! NSString
             
-            var duration = (stepDict.objectForKey("duration") as NSDictionary).objectForKey("text") as NSString
-            var html_instructions = stepDict.objectForKey("html_instructions") as NSString
-            var end_location = stepDict.objectForKey("end_location") as NSDictionary
-            var instructions = self.removeHTMLTags((stepDict.objectForKey("html_instructions") as NSString))
-            var start_location = stepDict.objectForKey("start_location") as NSDictionary
+            var duration = (stepDict.objectForKey("duration") as! NSDictionary).objectForKey("text") as! NSString
+            var html_instructions = stepDict.objectForKey("html_instructions") as! NSString
+            var end_location = stepDict.objectForKey("end_location") as! NSDictionary
+            var instructions = self.removeHTMLTags((stepDict.objectForKey("html_instructions") as! NSString))
+            var start_location = stepDict.objectForKey("start_location") as! NSDictionary
             
             var stepsDictionary = NSMutableDictionary()
             

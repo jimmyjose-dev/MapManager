@@ -174,6 +174,7 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                 if let web = self.mapView?{
                     
                     dispatch_async(dispatch_get_main_queue()) {
+                        self.removeAllPlacemarkFromMap(shouldRemoveUserLocation: true)
                         web.addOverlay(route!)
                         web.addAnnotation(pointOfOrigin)
                         web.addAnnotation(pointOfDestination)
@@ -243,7 +244,7 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                 if let web = self.mapView?{
                     
                     dispatch_async(dispatch_get_main_queue()) {
-                        
+                        self.removeAllPlacemarkFromMap(shouldRemoveUserLocation: true)
                         web.addOverlay(route!)
                         web.setVisibleMapRect(boundingRegion!, animated: true)
                         
@@ -292,6 +293,24 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                 
             }
             
+    }
+    
+    func removeAllPlacemarkFromMap(#shouldRemoveUserLocation:Bool){
+        
+        if let mapView = self.mapView {
+            for annotation in mapView.annotations{
+                if shouldRemoveUserLocation {
+                    if annotation as? MKUserLocation !=  mapView.userLocation {
+                        mapView.removeAnnotation(annotation as MKAnnotation)
+                    }
+                }
+                
+                
+            }
+            
+        }
+        
+        
     }
     
 }
