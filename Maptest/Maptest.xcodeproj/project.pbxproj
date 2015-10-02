@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		43C8EF971BBF32810003CAF4 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43C8EF961BBF32810003CAF4 /* Launch Screen.storyboard */; settings = {ASSET_TAGS = (); }; };
 		BF5D184619BC6F5A00FA08CD /* MapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5D184519BC6F5A00FA08CD /* MapManager.swift */; };
 		BF7A144519ACB9C200B47403 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCFF58719A1395900D16DD9 /* CoreLocation.framework */; };
 		BF7A144619ACB9C700B47403 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCFF58519A1394D00D16DD9 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		43C8EF961BBF32810003CAF4 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		BF5D184519BC6F5A00FA08CD /* MapManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MapManager.swift; path = ../../MapManager.swift; sourceTree = "<group>"; };
 		BFCFF56119A138A600D16DD9 /* Maptest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maptest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFCFF56519A138A700D16DD9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				BFCFF56A19A138A700D16DD9 /* Main.storyboard */,
 				BFCFF56D19A138A700D16DD9 /* Images.xcassets */,
 				BFCFF56419A138A700D16DD9 /* Supporting Files */,
+				43C8EF961BBF32810003CAF4 /* Launch Screen.storyboard */,
 			);
 			path = Maptest;
 			sourceTree = "<group>";
@@ -206,6 +209,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43C8EF971BBF32810003CAF4 /* Launch Screen.storyboard in Resources */,
 				BFCFF56C19A138A700D16DD9 /* Main.storyboard in Resources */,
 				BFCFF56E19A138A700D16DD9 /* Images.xcassets in Resources */,
 			);

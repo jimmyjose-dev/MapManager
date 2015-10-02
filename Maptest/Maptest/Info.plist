@@ -26,6 +26,8 @@
 	<string>Just press OK or rot in hell</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Just press OK or rot in hell</string>
+	<key>UILaunchStoryboardName</key>
+	<string>Launch Screen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
