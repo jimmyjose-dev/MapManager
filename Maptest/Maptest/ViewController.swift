@@ -23,10 +23,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 import UIKit
 import MapKit
-
 
 class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UITableViewDataSource,UITableViewDelegate,CLLocationManagerDelegate{
     
@@ -37,91 +35,62 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
     @IBOutlet var textView:UITextView? = UITextView()
     @IBOutlet var tableView:UITableView? = UITableView()
     
-    
     var tableData = NSArray()
-    
     var mapManager = MapManager()
-    
     var locationManager: CLLocationManager!
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
     override func viewDidLoad() {
-        
         super.viewDidLoad()
-        
-        
-        
-        
         //[CLLocationManager requestWhenInUseAuthorization];
         //[CLLocationManager requestAlwaysAuthorization]
-        
-        let address = "1 Infinite Loop, CA, USA"
-        
         textfieldTo?.delegate = self
         textfieldFrom?.delegate = self
-        
         self.mapView?.delegate = self
-        
+        self.mapView!.showsUserLocation = true
     }
     
-    func mapViewWillStartLocatingUser(mapView: MKMapView!) {
-        
+    func mapViewWillStartLocatingUser(mapView: MKMapView) {
     }
     
-    
-    func mapView(mapView: MKMapView!, rendererForOverlay overlay: MKOverlay!) -> MKOverlayRenderer! {
+    func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
         if overlay is MKPolyline {
-            var polylineRenderer = MKPolylineRenderer(overlay: overlay)
+            let polylineRenderer = MKPolylineRenderer(overlay: overlay)
             polylineRenderer.strokeColor = UIColor.blueColor()
             polylineRenderer.lineWidth = 5
-            println("done")
+            print("done")
             return polylineRenderer
         }
-        
-        return nil
+        return MKOverlayRenderer()
     }
-    
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int{
-        
         return 1
     }
-    
-    
-    
+
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
-        
-        
         return tableData.count
     }
     
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
-        
         let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "direction")
         
-        var idx:Int = indexPath.row
+        let idx:Int = indexPath.row
+        
+        let dictTable:NSDictionary = tableData[idx] as! NSDictionary
+        let instruction = dictTable["instructions"] as! String
+        let distance = dictTable["distance"] as! NSString
+        let duration = dictTable["duration"] as! NSString
+        let detail = "distance:\(distance) duration:\(duration)"
         
         
-        var dictTable:NSDictionary = tableData[idx] as NSDictionary
-        var instruction = dictTable["instructions"] as NSString
-        var distance = dictTable["distance"] as NSString
-        var duration = dictTable["duration"] as NSString
-        var detail = "distance:\(distance) duration:\(duration)"
-        
-        
-        cell.textLabel.text = instruction
+        cell.textLabel!.text = instruction
         cell.backgroundColor = UIColor.clearColor()
-        cell.textLabel.font = UIFont(name: "Helvetica Neue Light", size: 15.0)
+        cell.textLabel!.font = UIFont(name: "Helvetica Neue Light", size: 15.0)
         cell.selectionStyle = UITableViewCellSelectionStyle.None
         
         //cell.textLabel.font=  [UIFont fontWithName:"Helvetica Neue-Light" size:15];
         cell.detailTextLabel!.text = detail
-        
         
         return cell
     }
@@ -133,46 +102,46 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
         origin = origin?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
         destination = destination?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
         
-        if(origin == nil || (countElements(origin!) == 0) || destination == nil || countElements(destination!) == 0)
-        {
-            
-            println("enter to and from")
+        guard let
+            letorigin = origin,
+            letdestination = destination
+        where !letorigin.isEmpty && !letdestination.isEmpty else {
+            print("enter to and from")
             return
         }
+        
         self.view.endEditing(true)
         
         mapManager.directionsUsingGoogle(from: origin!, to: destination!) { (route,directionInformation, boundingRegion, error) -> () in
             
             if(error != nil){
-                
-                println(error)
-            }else{
-                
-                var pointOfOrigin = MKPointAnnotation()
+                print(error)
+            }
+            else{
+                let pointOfOrigin = MKPointAnnotation()
                 pointOfOrigin.coordinate = route!.coordinate
-                pointOfOrigin.title = directionInformation?.objectForKey("start_address") as NSString
-                pointOfOrigin.subtitle = directionInformation?.objectForKey("duration") as NSString
+                pointOfOrigin.title = directionInformation?.objectForKey("start_address") as! NSString as String
+                pointOfOrigin.subtitle = directionInformation?.objectForKey("duration") as! NSString as String
                 
-                var pointOfDestination = MKPointAnnotation()
+                let pointOfDestination = MKPointAnnotation()
                 pointOfDestination.coordinate = route!.coordinate
-                pointOfDestination.title = directionInformation?.objectForKey("end_address") as NSString
-                pointOfDestination.subtitle = directionInformation?.objectForKey("distance") as NSString
+                pointOfDestination.title = directionInformation?.objectForKey("end_address") as! NSString as String
+                pointOfDestination.subtitle = directionInformation?.objectForKey("distance") as! NSString as String
                 
-                var start_location = directionInformation?.objectForKey("start_location") as NSDictionary
-                var originLat = start_location.objectForKey("lat")?.doubleValue
-                var originLng = start_location.objectForKey("lng")?.doubleValue
+                let start_location = directionInformation?.objectForKey("start_location") as! NSDictionary
+                let originLat = start_location.objectForKey("lat")?.doubleValue
+                let originLng = start_location.objectForKey("lng")?.doubleValue
                 
-                var end_location = directionInformation?.objectForKey("end_location") as NSDictionary
-                var destLat = end_location.objectForKey("lat")?.doubleValue
-                var destLng = end_location.objectForKey("lng")?.doubleValue
+                let end_location = directionInformation?.objectForKey("end_location") as! NSDictionary
+                let destLat = end_location.objectForKey("lat")?.doubleValue
+                let destLng = end_location.objectForKey("lng")?.doubleValue
                 
-                var coordOrigin = CLLocationCoordinate2D(latitude: originLat!, longitude: originLng!)
-                var coordDesitination = CLLocationCoordinate2D(latitude: destLat!, longitude: destLng!)
+                let coordOrigin = CLLocationCoordinate2D(latitude: originLat!, longitude: originLng!)
+                let coordDesitination = CLLocationCoordinate2D(latitude: destLat!, longitude: destLng!)
                 
                 pointOfOrigin.coordinate = coordOrigin
                 pointOfDestination.coordinate = coordDesitination
-                if let web = self.mapView?{
-                    
+                if let web = self.mapView {
                     dispatch_async(dispatch_get_main_queue()) {
                         self.removeAllPlacemarkFromMap(shouldRemoveUserLocation: true)
                         web.addOverlay(route!)
@@ -181,28 +150,18 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                         web.setVisibleMapRect(boundingRegion!, animated: true)
                         self.tableView?.delegate = self
                         self.tableView?.dataSource = self
-                        self.tableData = directionInformation?.objectForKey("steps") as NSArray
+                        self.tableData = directionInformation?.objectForKey("steps") as! NSArray
                         self.tableView?.reloadData()
-                        
                     }
-                    
                 }
-                
             }
         }
-        
-        
-        
     }
     
     @IBAction func usingAppleButtonPressed(sender:UIButton){
-        
-        var destination =  textfieldToCurrentLocation?.text
-        
-        if(destination == nil || countElements(destination!) == 0)
-        {
-            
-            println("enter to and from")
+        let destination =  textfieldToCurrentLocation?.text
+        guard let letdestination = destination where !letdestination.isEmpty else {
+            print("enter to and from")
             return
         }
         
@@ -215,34 +174,19 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
         
         
         if (locationManager.respondsToSelector(Selector("requestWhenInUseAuthorization"))) {
-            
             //locationManager.requestAlwaysAuthorization() // add in plist NSLocationAlwaysUsageDescription
-            locationManager.requestWhenInUseAuthorization() // add in plist NSLocationWhenInUseUsageDescription
-            
+            locationManager.requestWhenInUseAuthorization() // add in plist NSLocationWhenInUseUsageDescription            
         }
-        
-        //var location = self.mapView?.userLocation
-        
-        //var from = location?.coordinate
-        
-        
-        
-        
-        
     }
     
     func getDirectionsUsingApple() {
-        
-        var destination =  textfieldToCurrentLocation?.text
+        let destination =  textfieldToCurrentLocation?.text
         mapManager.directionsFromCurrentLocation(to: destination!) { (route, directionInformation, boundingRegion, error) -> () in
-            
-            if (error? != nil) {
-                
-                println(error!)
-            }else{
-                
-                if let web = self.mapView?{
-                    
+            if (error != nil) {
+                print(error!)
+            }
+            else {
+                if let web = self.mapView {
                     dispatch_async(dispatch_get_main_queue()) {
                         self.removeAllPlacemarkFromMap(shouldRemoveUserLocation: true)
                         web.addOverlay(route!)
@@ -250,25 +194,19 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                         
                         self.tableView?.delegate = self
                         self.tableView?.dataSource = self
-                        self.tableData = directionInformation?.objectForKey("steps") as NSArray
+                        self.tableData = directionInformation?.objectForKey("steps") as! NSArray
                         self.tableView?.reloadData()
                         
                     }
-                    
                 }
             }
-            
         }
-        
-        
     }
     
-    
-    func locationManager(manager: CLLocationManager!,
+    func locationManager(manager: CLLocationManager,
         didChangeAuthorizationStatus status: CLAuthorizationStatus) {
             var hasAuthorised = false
             var locationStatus:NSString = ""
-            var verboseKey = status
             switch status {
             case CLAuthorizationStatus.Restricted:
                 locationStatus = "Restricted Access"
@@ -281,22 +219,15 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                 hasAuthorised = true
             }
             
-            
-            
-            if(hasAuthorised == true){
-                
+            if(hasAuthorised == true) {
                 getDirectionsUsingApple()
-                
-            }else {
-                
-                println("locationStatus \(locationStatus)")
-                
             }
-            
+            else {
+                print("locationStatus \(locationStatus)")
+            }
     }
     
-    func removeAllPlacemarkFromMap(#shouldRemoveUserLocation:Bool){
-        
+    func removeAllPlacemarkFromMap(shouldRemoveUserLocation shouldRemoveUserLocation:Bool){
         if let mapView = self.mapView {
             for annotation in mapView.annotations{
                 if shouldRemoveUserLocation {
@@ -304,14 +235,8 @@ class ViewController: UIViewController,UITextFieldDelegate,MKMapViewDelegate,UIT
                         mapView.removeAnnotation(annotation as MKAnnotation)
                     }
                 }
-                
-                
             }
-            
         }
-        
-        
     }
-    
 }
 
