@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		43C8EF971BBF32810003CAF4 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43C8EF961BBF32810003CAF4 /* Launch Screen.storyboard */; settings = {ASSET_TAGS = (); }; };
 		BF5D184619BC6F5A00FA08CD /* MapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF5D184519BC6F5A00FA08CD /* MapManager.swift */; };
 		BF7A144519ACB9C200B47403 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCFF58719A1395900D16DD9 /* CoreLocation.framework */; };
 		BF7A144619ACB9C700B47403 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCFF58519A1394D00D16DD9 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		43C8EF961BBF32810003CAF4 /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		BF5D184519BC6F5A00FA08CD /* MapManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MapManager.swift; path = ../../MapManager.swift; sourceTree = "<group>"; };
 		BFCFF56119A138A600D16DD9 /* Maptest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maptest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFCFF56519A138A700D16DD9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				BFCFF56A19A138A700D16DD9 /* Main.storyboard */,
 				BFCFF56D19A138A700D16DD9 /* Images.xcassets */,
 				BFCFF56419A138A700D16DD9 /* Supporting Files */,
+				43C8EF961BBF32810003CAF4 /* Launch Screen.storyboard */,
 			);
 			path = Maptest;
 			sourceTree = "<group>";
@@ -168,7 +171,9 @@
 		BFCFF55919A138A600D16DD9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastSwiftMigration = 0700;
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Varshyl Mobile Pvt. Ltd.";
 				TargetAttributes = {
 					BFCFF56019A138A600D16DD9 = {
@@ -204,6 +209,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43C8EF971BBF32810003CAF4 /* Launch Screen.storyboard in Resources */,
 				BFCFF56C19A138A700D16DD9 /* Main.storyboard in Resources */,
 				BFCFF56E19A138A700D16DD9 /* Images.xcassets in Resources */,
 			);
@@ -279,6 +285,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -343,9 +350,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Maptest/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.varshylmobile.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -358,8 +366,9 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Maptest/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.varshylmobile.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -379,6 +388,7 @@
 				);
 				INFOPLIST_FILE = MaptestTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.varshylmobile.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Maptest.app/Maptest";
 			};
@@ -394,6 +404,7 @@
 				);
 				INFOPLIST_FILE = MaptestTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.varshylmobile.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Maptest.app/Maptest";
 			};
